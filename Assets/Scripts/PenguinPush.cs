@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PenguinPush : NetworkBehaviour
 {
@@ -17,16 +18,21 @@ public class PenguinPush : NetworkBehaviour
         private readonly Collider[] _hits = new Collider[8];
         private readonly HashSet<ulong> _alreadyPushed = new HashSet<ulong>();
 
-        private void Update()
+    private void Update()
+    {
+        if (!IsOwner || Time.time < _nextPushTime) return;
+
+        if (Keyboard.current != null &&
+            Keyboard.current.spaceKey.wasPressedThisFrame)
         {
-            if (!IsOwner || Time.time < _nextPushTime) return;
-
-            //CD
             if (TryPush())
+            {
                 _nextPushTime = Time.time + cooldown;
+            }
         }
+    }
 
-        private bool TryPush()
+    private bool TryPush()
         {
             Transform t = hitbox.transform;
             Vector3 center = t.TransformPoint(hitbox.center);
