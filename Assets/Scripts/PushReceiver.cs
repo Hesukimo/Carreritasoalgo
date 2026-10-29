@@ -16,7 +16,8 @@ public class PushReceiver : NetworkBehaviour
     public void ReceivePushRpc(Vector3 impulse)
     {
         impulse.y = 0f;
-        _velocity += impulse;
+        _velocity = impulse;
+        Debug.Log($"Recibido empuje en direccion {impulse.normalized}");
     }
 
     private void Update()
@@ -27,5 +28,6 @@ public class PushReceiver : NetworkBehaviour
         _velocity *= Mathf.Exp(-drag * Time.deltaTime);
 
         if (_velocity.sqrMagnitude < 0.01f) _velocity = Vector3.zero;
+        
     }
 }

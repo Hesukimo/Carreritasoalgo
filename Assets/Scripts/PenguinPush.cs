@@ -23,7 +23,7 @@ public class PenguinPush : NetworkBehaviour
         if (!IsOwner || Time.time < _nextPushTime) return;
 
         if (Keyboard.current != null &&
-            Keyboard.current.spaceKey.wasPressedThisFrame)
+            Keyboard.current.eKey.wasPressedThisFrame)
         {
             if (TryPush())
             {
@@ -55,7 +55,8 @@ public class PenguinPush : NetworkBehaviour
             if (!_alreadyPushed.Add(target.NetworkObjectId)) continue;            // validacion
 
             PushRequestRpc(target, dir);
-                pushedAny = true;
+            Debug.Log($"Mandado empuje en direccion {dir}");
+            pushedAny = true;
             }
             return pushedAny;
         }
