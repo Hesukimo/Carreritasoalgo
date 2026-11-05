@@ -18,7 +18,7 @@ public class PenguinPush : NetworkBehaviour
         private readonly Collider[] _hits = new Collider[8];
         private readonly HashSet<ulong> _alreadyPushed = new HashSet<ulong>();
 
-    private void Update()
+    private void FixedUpdate()
     {
         if (!IsOwner || Time.time < _nextPushTime) return;
 
