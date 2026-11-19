@@ -4,7 +4,7 @@ using UnityEngine.InputSystem;
 
 public class HostTeleportButton : NetworkBehaviour
 {
-    public Transform targetPosition;
+    public Transform[] playerPositions;
 
     void Update()
     {
@@ -14,7 +14,6 @@ public class HostTeleportButton : NetworkBehaviour
         }
     }
 
-
     public void TeleportAllPlayers()
     {
         // Only the Host/Server can initiate this
@@ -22,12 +21,21 @@ public class HostTeleportButton : NetworkBehaviour
 
         foreach (NetworkClient client in NetworkManager.Singleton.ConnectedClientsList)
         {
-            if (client.PlayerObject != null && 
+            if (client.PlayerObject != null &&
                 client.PlayerObject.TryGetComponent(out PlayerTeleportHandler teleportHandler))
             {
+                // Get the player's OwnerClientId
+                ulong ownerId = client.ClientId;
+
+                // Check that the ID is within the array bounds
+                if ((int)ownerId >= playerPositions.Length) continue;
+
+                // Get the position corresponding to the OwnerID
+                Transform target = playerPositions[ownerId];
+
                 teleportHandler.TeleportOwnerRpc(
-                    targetPosition.position, 
-                    targetPosition.rotation
+                    target.position,
+                    target.rotation
                 );
             }
         }
