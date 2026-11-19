@@ -19,6 +19,7 @@ GameObject:
   - component: {fileID: 137728170992669810}
   - component: {fileID: 7844694585982035171}
   - component: {fileID: 2981660349610550523}
+  - component: {fileID: 7611651503520267074}
   m_Layer: 3
   m_Name: PlayerArmature_Networked
   m_TagString: Player
@@ -264,7 +265,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 523036962
+  GlobalObjectIdHash: 3975499402
   InScenePlacedSourceGlobalObjectIdHash: 0
   m_InScenePlacedDisabledByDefault: 0
   DeferredDespawnTick: 0
@@ -377,6 +378,19 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   controller: {fileID: 8157714553931674108}
   drag: 4
+--- !u!114 &7611651503520267074
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2679278347713730378}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 17ff439513b8a5d40bd457fa215041c2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerTeleportHandler
+  ShowTopMostFoldoutHeaderGroup: 1
 --- !u!1 &3112563864998705408
 GameObject:
   m_ObjectHideFlags: 0
