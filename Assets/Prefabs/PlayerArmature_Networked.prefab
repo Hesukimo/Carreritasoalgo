@@ -17,9 +17,10 @@ GameObject:
   - component: {fileID: 5803661370979746889}
   - component: {fileID: 1312186090203438049}
   - component: {fileID: 137728170992669810}
-  - component: {fileID: 7844694585982035171}
   - component: {fileID: 2981660349610550523}
   - component: {fileID: 7611651503520267074}
+  - component: {fileID: 8328195063315071701}
+  - component: {fileID: 8008287168434370693}
   m_Layer: 3
   m_Name: PlayerArmature_Networked
   m_TagString: Player
@@ -343,26 +344,6 @@ MonoBehaviour:
   SwitchTransformSpaceWhenParented: 0
   Interpolate: 1
   SlerpPosition: 0
---- !u!114 &7844694585982035171
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2679278347713730378}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d6ce64ad3700a6643919da7d42b09092, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PenguinPush
-  ShowTopMostFoldoutHeaderGroup: 1
-  hitbox: {fileID: 8210219886476160917}
-  playerLayers:
-    serializedVersion: 2
-    m_Bits: 8
-  pushForce: 12
-  cooldown: 0.6
-  maxServerRange: 3
 --- !u!114 &2981660349610550523
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -391,6 +372,54 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerTeleportHandler
   ShowTopMostFoldoutHeaderGroup: 1
+--- !u!114 &8328195063315071701
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2679278347713730378}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c61bd5509709cb04cbd0b671b942993a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PenguinPush
+  ShowTopMostFoldoutHeaderGroup: 1
+  hitbox: {fileID: 8210219886476160917}
+  playerLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  pushForce: 12
+  cooldown: 0.6
+  maxServerRange: 3
+  effects: {fileID: 0}
+--- !u!114 &8008287168434370693
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2679278347713730378}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bde59c00ed7b452499a6613b400a6f4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PenguinSlide
+  ShowTopMostFoldoutHeaderGroup: 1
+  controller: {fileID: 8157714553931674108}
+  thirdPerson: {fileID: 955099810584125443}
+  input: {fileID: 4039460365216914486}
+  effects: {fileID: 0}
+  animator: {fileID: 0}
+  slideAngle: 25
+  rayLength: 1.5
+  acceleration: 12
+  maxSpeed: 14
+  friction: 8
+  stopSpeed: 3
+  steerSpeed: 3
+  turnSpeed: 10
+  slidingParam: Sliding
 --- !u!1 &3112563864998705408
 GameObject:
   m_ObjectHideFlags: 0
@@ -442,8 +471,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.7728601, y: 1.3874264, z: 0.7510718}
-  m_Center: {x: -0.0075407326, y: 0.9771719, z: 0.004357159}
+  m_Size: {x: 0.7728601, y: 1.4782668, z: 0.99850106}
+  m_Center: {x: -0.0075407326, y: 0.93175167, z: 0.0021192431}
 --- !u!1 &7857933675755911984
 GameObject:
   m_ObjectHideFlags: 0
