@@ -3,12 +3,12 @@ using StarterAssets;
 using Unity.Netcode;
 using UnityEngine;
 
-// Un efecto activo sobre un jugador
+//Un efecto activo sobre un jugador
 public struct ActiveEffect : INetworkSerializable, IEquatable<ActiveEffect>
 {
     public ushort EffectId;
-    public double ExpireTime;      // en tiempo del servidor. Infinito = permanente
-    public ulong SourceClientId;   // quien lo aplico (ulong.MaxValue = trampa o entorno)
+    public double ExpireTime;      //Tiempo del servidor. Infinito = permanente
+    public ulong SourceClientId;   //Quien lo aplico (ulong.MaxValue = trampa)
 
     public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
     {
@@ -21,10 +21,6 @@ public struct ActiveEffect : INetworkSerializable, IEquatable<ActiveEffect>
         EffectId == o.EffectId && ExpireTime == o.ExpireTime && SourceClientId == o.SourceClientId;
 }
 
-// Maneja los buffs y debuffs de un jugador.
-// - El SERVIDOR agrega y quita efectos.
-// - La lista se replica, asi que todos la pueden leer.
-// - El DUENO del jugador aplica los stats al ThirdPersonController.
 public class PlayerEffects : NetworkBehaviour
 {
     [SerializeField] private EffectLibrary library;
@@ -36,12 +32,12 @@ public class PlayerEffects : NetworkBehaviour
     private readonly float[] _add = new float[StatCount];
     private readonly float[] _mul = new float[StatCount];
     private EffectFlags _flags;
-    private bool _localMoveLock; // bloqueo local del movimiento (ej: deslizarse)
+    private bool _localMoveLock; //Bloqueo local del movimiento (deslizarse)
 
-    // Valores originales del prefab, para no modificarlos de forma permanente
-    private float _baseMove, _baseSprint, _baseJump, _baseGravity;
+    //Valores originales del prefab
+    private float _baseMove, _baseSprint, _baseJump, _baseGravity, _baseSpeedChange;
 
-    // Se lanza en todos los clientes cuando cambia la lista (para UI o VFX)
+    //Para UI o VFX
     public event Action OnEffectsChanged;
 
     public int Count => _active.Count;
@@ -57,6 +53,7 @@ public class PlayerEffects : NetworkBehaviour
             _baseSprint = controller.SprintSpeed;
             _baseJump = controller.JumpHeight;
             _baseGravity = controller.Gravity;
+            _baseSpeedChange = controller.SpeedChangeRate;
         }
         ResetCache();
     }
@@ -78,18 +75,18 @@ public class PlayerEffects : NetworkBehaviour
     {
         if (!IsServer || !IsSpawned) return;
 
-        // El servidor quita los efectos que ya expiraron
+        //Quitar efectos expirados
         double now = NetworkManager.ServerTime.Time;
         for (int i = _active.Count - 1; i >= 0; i--)
             if (_active[i].ExpireTime <= now) _active.RemoveAt(i);
     }
 
-    // ---------- Consultas (cualquier cliente) ----------
+    //Consultas
 
-    // (valor base + sumas) * multiplicadores
+    //(base + sumas) * multiplicadores
     public float Get(StatType stat, float baseValue) => (baseValue + _add[(int)stat]) * _mul[(int)stat];
 
-    // Solo el multiplicador total
+    //Solo el multiplicador
     public float Multiplier(StatType stat) => _mul[(int)stat];
 
     public bool HasAnyFlag(EffectFlags mask) => (_flags & mask) != 0;
@@ -101,16 +98,16 @@ public class PlayerEffects : NetworkBehaviour
         return false;
     }
 
-    // Segundos que le quedan al efecto en esa posicion de la lista
+    //Segundos restantes de un efecto
     public float RemainingTime(int index)
     {
         double t = _active[index].ExpireTime;
         return double.IsInfinity(t) ? float.PositiveInfinity : Mathf.Max(0f, (float)(t - NetworkManager.ServerTime.Time));
     }
 
-    // ---------- API del servidor ----------
+    //Servidor
 
-    // Aplica un efecto. Solo llamar desde el servidor (trampas, pickups, poderes).
+    //Aplicar efecto (solo servidor)
     public bool ServerApply(ushort effectId, ulong sourceClientId = ulong.MaxValue, float durationOverride = -1f)
     {
         if (!IsServer) { Debug.LogWarning("ServerApply se llamo fuera del servidor."); return false; }
@@ -120,7 +117,7 @@ public class PlayerEffects : NetworkBehaviour
         float duration = durationOverride > 0f ? durationOverride : def.defaultDuration;
         double expire = duration > 0f ? NetworkManager.ServerTime.Time + duration : double.PositiveInfinity;
 
-        // Contar copias activas y buscar la mas antigua
+        //Contar copias y buscar la mas antigua
         int count = 0, oldest = -1;
         double oldestExpire = double.MaxValue;
         for (int i = 0; i < _active.Count; i++)
@@ -132,7 +129,7 @@ public class PlayerEffects : NetworkBehaviour
 
         if (count >= Mathf.Max(1, def.maxStacks))
         {
-            // Limite alcanzado: refrescar la mas antigua
+            //Limite: refrescar la mas antigua
             var e = _active[oldest];
             e.ExpireTime = expire;
             e.SourceClientId = sourceClientId;
@@ -152,7 +149,7 @@ public class PlayerEffects : NetworkBehaviour
             if (_active[i].EffectId == effectId) _active.RemoveAt(i);
     }
 
-    // Quita todos los debuffs (limpiar)
+    //Limpiar debuffs
     public void ServerClearDebuffs()
     {
         if (!IsServer) return;
@@ -165,7 +162,7 @@ public class PlayerEffects : NetworkBehaviour
         if (IsServer) _active.Clear();
     }
 
-    // Aplica un efecto a todos los jugadores menos a uno (ej: ralentizar a los rivales)
+    //Aplicar a todos menos a uno (ej: ralentizar rivales)
     public static void ServerApplyToOthers(ulong exceptClientId, ushort effectId, float durationOverride = -1f)
     {
         var nm = NetworkManager.Singleton;
@@ -179,7 +176,7 @@ public class PlayerEffects : NetworkBehaviour
         }
     }
 
-    // Bloquea o desbloquea caminar y saltar solo en el dueno (lo usa PenguinSlide)
+    //Bloquear caminar, saltar y gravedad del ThirdPersonController (lo usa PenguinSlide)
     public void SetLocalMoveLock(bool locked)
     {
         if (_localMoveLock == locked) return;
@@ -187,7 +184,7 @@ public class PlayerEffects : NetworkBehaviour
         if (IsOwner) ApplyToController();
     }
 
-    // ---------- Interno ----------
+    //Interno
 
     private void ResetCache()
     {
@@ -196,7 +193,7 @@ public class PlayerEffects : NetworkBehaviour
         _flags = EffectFlags.None;
     }
 
-    // Recalcula los stats sumando todos los efectos activos
+    //Recalcular stats con todos los efectos activos
     private void Recalculate()
     {
         ResetCache();
@@ -216,7 +213,7 @@ public class PlayerEffects : NetworkBehaviour
         OnEffectsChanged?.Invoke();
     }
 
-    // Pasa los stats calculados al ThirdPersonController (solo el dueno)
+    //Pasar los stats al ThirdPersonController (solo el dueno)
     private void ApplyToController()
     {
         if (controller == null) return;
@@ -233,6 +230,12 @@ public class PlayerEffects : NetworkBehaviour
             controller.SprintSpeed = Mathf.Max(0f, Get(StatType.SprintSpeed, _baseSprint));
             controller.JumpHeight = Mathf.Max(0f, Get(StatType.JumpHeight, _baseJump));
         }
-        controller.Gravity = Get(StatType.Gravity, _baseGravity);
+
+        //Con el bloqueo la gravedad la controla PenguinSlide
+        controller.Gravity = _localMoveLock ? 0f : Get(StatType.Gravity, _baseGravity);
+
+        //Con el bloqueo el ThirdPersonController no debe sumar movimiento propio
+        //(SpeedChangeRate muy alto = su velocidad cae a 0 al instante)
+        controller.SpeedChangeRate = _localMoveLock ? 1000f : _baseSpeedChange;
     }
 }
