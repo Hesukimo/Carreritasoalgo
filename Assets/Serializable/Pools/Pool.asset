@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fb239985dd9977349921fc747dffa2c6, type: 3}
+  m_Name: Pool
+  m_EditorClassIdentifier: Assembly-CSharp::PowerUpPool
+  powerUps:
+  - {fileID: 11400000, guid: 489ec714dfdb9f94c8f91ad4c85ff5ea, type: 2}
+  - {fileID: 11400000, guid: a9bf8f9ddc4f77547b2b68bb23f8c45f, type: 2}
+  - {fileID: 11400000, guid: 98b2157a0601b8c4a98dfff7043d05b7, type: 2}
+  - {fileID: 11400000, guid: 77dc0f75800b8314b8f1244329cc2684, type: 2}
