@@ -1,8 +1,11 @@
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerPowerUpHolder : NetworkBehaviour
 {
+    [SerializeField] private Key useKey = Key.E;
+
     private readonly NetworkVariable<PowerUps> _current = new(
         PowerUps.None,
         NetworkVariableReadPermission.Everyone,
@@ -10,7 +13,15 @@ public class PlayerPowerUpHolder : NetworkBehaviour
 
     public void Update()
     {
-        //Debug.Log(_current.Value);
+        var keyboard = Keyboard.current;
+        if (keyboard == null) return;
+
+        if (keyboard[useKey].wasPressedThisFrame)
+        {
+            Events.RaiseUseInputPressed();
+            Debug.Log("presionado E");
+        }
+            
     }
 
     public override void OnNetworkSpawn()

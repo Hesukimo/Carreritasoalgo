@@ -434,6 +434,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerPowerUpHolder
   ShowTopMostFoldoutHeaderGroup: 1
+  useKey: 19
 --- !u!1 &3112563864998705408
 GameObject:
   m_ObjectHideFlags: 0

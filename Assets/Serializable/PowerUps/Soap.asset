@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4e8f69b0e9601c4d8b7e0e68de01ff7, type: 3}
   m_Name: Soap
   m_EditorClassIdentifier: Assembly-CSharp::PowerUp
-  sprite: {fileID: 21300000, guid: b74c31d447d2f5d41a61081bdf5e7126, type: 3}
+  sprite: {fileID: 21300000, guid: f485023149e71f64f842d09eb2f501b5, type: 3}
   powerUp: 1
   nombre: "Jab\xF3n"
   peso: 2
