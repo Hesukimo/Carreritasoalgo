@@ -43,12 +43,27 @@ public class PowerUpEffectRunner : NetworkBehaviour
         Debug.Log("Usado laxantes");
     }
 
-    private void UseBurrito(ulong clientId, NetworkObject player)
-    {
-        Debug.Log("Usado burrito");
-    }
+	private void UseBurrito(ulong clientId, NetworkObject player)
+	{
+		Debug.Log("Usado burrito");
 
-    private void UseSoap(ulong clientId, NetworkObject player)
+		// Impulso del jugador que utiliza el objeto.
+		Events.RaisePlayerKnockback(clientId, -player.transform.forward, 12f, 2f, 0.65f);
+
+		// Buscar la hitbox, incluso si está desactivada.
+		BurritoHitbox hitbox = player.GetComponentInChildren<BurritoHitbox>(true);
+
+		if (hitbox != null)
+		{
+			hitbox.ActivateServer();
+		}
+		else
+		{
+			Debug.LogWarning("[Burrito] No se encuentra BurritoHitbox en el Player.");
+		}
+	}
+
+	private void UseSoap(ulong clientId, NetworkObject player)
     {
         Debug.Log("Usado jabón");
     }

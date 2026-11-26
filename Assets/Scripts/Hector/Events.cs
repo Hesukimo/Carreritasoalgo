@@ -1,5 +1,5 @@
 using System;
-
+using UnityEngine;
 public static class Events
 {
     //SERVIDOR
@@ -15,9 +15,12 @@ public static class Events
     /// Un jugador ha usado su objeto (aquí poner efectos reales).
     public static event Action<ulong, PowerUps> OnPowerUpUsed;
 
-    // CLIENTE
-    /// El jugador local pulsó el botón de usar objeto.
-    public static event Action OnUseInputPressed;
+    /// Un jugador ha usado un burrito.
+	public static event Action<ulong, Vector3, float, float, float> OnBurritoKnockback;
+
+	// CLIENTE
+	/// El jugador local pulsó el botón de usar objeto.
+	public static event Action OnUseInputPressed;
 
     /// Cambió el objeto que tiene el jugador LOCAL (para la HUD).
     public static event Action<PowerUps> OnLocalPowerUpChanged;
@@ -28,4 +31,5 @@ public static class Events
     public static void RaisePowerUpUsed(ulong clientId, PowerUps type) => OnPowerUpUsed?.Invoke(clientId, type);
     public static void RaiseUseInputPressed() => OnUseInputPressed?.Invoke();
     public static void RaiseLocalPowerUpChanged(PowerUps type) => OnLocalPowerUpChanged?.Invoke(type);
+	public static void RaisePlayerKnockback(ulong clientId, Vector3 direction, float horizontalForce, float verticalForce, float duration) => OnBurritoKnockback?.Invoke(clientId, direction, horizontalForce, verticalForce, duration);
 }

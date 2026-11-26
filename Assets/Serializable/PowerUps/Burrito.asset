@@ -15,4 +15,4 @@ MonoBehaviour:
   sprite: {fileID: 21300000, guid: 321adf8c362d929499e407b22b72579f, type: 3}
   powerUp: 2
   nombre: Burrito Explosivo
-  peso: 2
+  peso: 2000
