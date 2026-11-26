@@ -2,6 +2,10 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+/// <summary>
+/// Va en el prefab del jugador. Guarda el objeto actual (NetworkVariable escrita
+/// solo por el servidor) y gestiona su uso.
+/// </summary>
 public class PlayerPowerUpHolder : NetworkBehaviour
 {
     [SerializeField] private Key useKey = Key.E;
@@ -11,6 +15,21 @@ public class PlayerPowerUpHolder : NetworkBehaviour
         NetworkVariableReadPermission.Everyone,
         NetworkVariableWritePermission.Server);
 
+    public override void OnNetworkSpawn()
+    {
+        // Todos los clientes: avisar de cambios para el icono sobre la cabeza.
+        _current.OnValueChanged += OnCurrentChanged;
+        Events.RaisePlayerPowerUpChanged(OwnerClientId, _current.Value); // estado inicial (late joiners)
+
+        if (IsServer)
+            Events.OnPowerUpRolled += HandleRolled;
+
+        if (IsOwner)
+        {
+            Events.OnUseInputPressed += HandleUseInput;
+            Events.RaiseLocalPowerUpChanged(_current.Value);
+        }
+    }
     public void Update()
     {
         var keyboard = Keyboard.current;
@@ -19,22 +38,8 @@ public class PlayerPowerUpHolder : NetworkBehaviour
         if (keyboard[useKey].wasPressedThisFrame)
         {
             Events.RaiseUseInputPressed();
-            Debug.Log("presionado E");
         }
-            
-    }
 
-    public override void OnNetworkSpawn()
-    {
-        if (IsServer)
-            Events.OnPowerUpRolled += HandleRolled;
-
-        if (IsOwner)
-        {
-            _current.OnValueChanged += OnCurrentChanged;
-            Events.OnUseInputPressed += HandleUseInput;
-            Events.RaiseLocalPowerUpChanged(_current.Value);
-        }
     }
 
     public override void OnNetworkDespawn()
@@ -48,6 +53,7 @@ public class PlayerPowerUpHolder : NetworkBehaviour
     private void HandleRolled(ulong clientId, PowerUps type)
     {
         Debug.Log($"[Holder] Rolled {type} para {clientId}. Yo soy {OwnerClientId}, actual={_current.Value}");
+
         if (clientId != OwnerClientId) return;
         if (_current.Value != PowerUps.None) return; // ya tiene objeto
 
@@ -68,6 +74,12 @@ public class PlayerPowerUpHolder : NetworkBehaviour
     // ---------- Cliente propietario ----------
     private void HandleUseInput() => UseServerRpc();
 
+    // ---------- Todos ----------
     private void OnCurrentChanged(PowerUps _, PowerUps current)
-        => Events.RaiseLocalPowerUpChanged(current);
+    {
+        Events.RaisePlayerPowerUpChanged(OwnerClientId, current);
+
+        if (IsOwner)
+            Events.RaiseLocalPowerUpChanged(current);
+    }
 }

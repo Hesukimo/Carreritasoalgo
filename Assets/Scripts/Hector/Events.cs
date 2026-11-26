@@ -18,12 +18,16 @@ public static class Events
     /// Un jugador ha usado un burrito.
 	public static event Action<ulong, Vector3, float, float, float> OnBurritoKnockback;
 
-	// CLIENTE
-	/// El jugador local pulsó el botón de usar objeto.
-	public static event Action OnUseInputPressed;
+    /// Ha cambiado el objeto de CUALQUIER jugador (clientId, tipo). Para el icono encima del pinguinoi>
+    public static event Action<ulong, PowerUps> OnPlayerPowerUpChanged;
+
+    // CLIENTE
+    /// El jugador local pulsó el botón de usar objeto.
+    public static event Action OnUseInputPressed;
 
     /// Cambió el objeto que tiene el jugador LOCAL (para la HUD).
     public static event Action<PowerUps> OnLocalPowerUpChanged;
+
 
     public static void RaiseItemBoxCollected(ulong clientId) => OnItemBoxCollected?.Invoke(clientId);
     public static void RaisePowerUpRolled(ulong clientId, PowerUps type) => OnPowerUpRolled?.Invoke(clientId, type);
@@ -32,4 +36,21 @@ public static class Events
     public static void RaiseUseInputPressed() => OnUseInputPressed?.Invoke();
     public static void RaiseLocalPowerUpChanged(PowerUps type) => OnLocalPowerUpChanged?.Invoke(type);
 	public static void RaisePlayerKnockback(ulong clientId, Vector3 direction, float horizontalForce, float verticalForce, float duration) => OnBurritoKnockback?.Invoke(clientId, direction, horizontalForce, verticalForce, duration);
+    public static void RaisePlayerPowerUpChanged(ulong clientId, PowerUps type) => OnPlayerPowerUpChanged?.Invoke(clientId, type);
+
+    public static event Action<ulong, float, float> OnSpeedBoost;
+    public static void RaiseSpeedBoost(ulong clientId, float multiplier, float duration)
+        => OnSpeedBoost?.Invoke(clientId, multiplier, duration);
+    // Evita suscriptores "fantasma" si desactivas Reload Domain al entrar en Play Mode.
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ResetEvents()
+    {
+        OnItemBoxCollected = null;
+        OnPowerUpRolled = null;
+        OnPowerUpGranted = null;
+        OnPowerUpUsed = null;
+        OnUseInputPressed = null;
+        OnLocalPowerUpChanged = null;
+        OnPlayerPowerUpChanged = null;
+    }
 }

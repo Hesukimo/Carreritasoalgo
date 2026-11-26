@@ -21,6 +21,14 @@ public class PenguinSlide : NetworkBehaviour
     [SerializeField] private float flatSpeed = 8f;
     [SerializeField] private float deceleration = 3f;
 
+    [Header("Frenado")]
+    [SerializeField] private float brakeDeceleration = 6f;
+    [SerializeField, Range(0f, 1f)] private float minSpeedPercent = 0.75f; //Minimo al frenar (% de la velocidad maxima)
+
+    [Header("Salto")]
+    [SerializeField] private float jumpForce = 7f;
+    [SerializeField] private float jumpLockTime = 0.15f; //Tiempo en el que se ignora el suelo tras saltar
+
     [Header("Pegado al suelo")]
     [SerializeField] private float stickForce = 6f;
     [SerializeField] private float groundGrace = 0.15f;
@@ -45,6 +53,7 @@ public class PenguinSlide : NetworkBehaviour
 
     private Vector3 _groundNormal = Vector3.up;
     private float _groundTimer;
+    private float _jumpLock;
 
     private int _animSliding;
     private bool _hasAnimParam;
@@ -77,8 +86,13 @@ public class PenguinSlide : NetworkBehaviour
 
         float dt = Time.deltaTime;
 
-        //Detectar suelo
-        if (Physics.Raycast(
+        //Detectar suelo (se ignora un momento tras saltar para no pegarse otra vez)
+        if (_jumpLock > 0f)
+        {
+            _jumpLock -= dt;
+            _groundTimer = 0f;
+        }
+        else if (Physics.Raycast(
             transform.position + Vector3.up * 0.5f, Vector3.down, out RaycastHit hit,
             rayLength, thirdPerson.GroundLayers, QueryTriggerInteraction.Ignore))
         {
@@ -103,8 +117,27 @@ public class PenguinSlide : NetworkBehaviour
             SetSliding(true);
         }
 
+        //Salto (solo mientras desliza; el input se consume para que no se acumule)
+        if (_sliding && input != null && input.jump)
+        {
+            input.jump = false;
+
+            if (grounded)
+            {
+                _verticalSpeed = jumpForce;
+                _jumpLock = jumpLockTime;
+                _groundTimer = 0f;
+                grounded = false;
+                normal = Vector3.up;
+                steep = false;
+            }
+        }
+
         //Efectos
         float speedMult = effects != null ? effects.Multiplier(StatType.MoveSpeed) : 1f;
+
+        //Frenado (S / stick hacia atras)
+        bool braking = input != null && input.move.y < -0.1f;
 
         //Velocidad target
         float targetSpeed;
@@ -117,6 +150,14 @@ public class PenguinSlide : NetworkBehaviour
             SetSliding(true);
             targetSpeed = maxSpeed * speedMult;
             rate = acceleration;
+
+            //Frenar un poco: solo baja hasta un porcentaje de la velocidad maxima
+            float brakeFloor = targetSpeed * minSpeedPercent;
+            if (braking && _speed > brakeFloor)
+            {
+                targetSpeed = brakeFloor;
+                rate = brakeDeceleration;
+            }
         }
         else if (_sliding)
         {
@@ -136,7 +177,9 @@ public class PenguinSlide : NetworkBehaviour
             return; //No esta deslizando
         }
 
-        _speed = Mathf.MoveTowards(_speed, targetSpeed, rate * dt);
+        //La velocidad solo cambia en el suelo (en el aire se conserva)
+        if (grounded)
+            _speed = Mathf.MoveTowards(_speed, targetSpeed, rate * dt);
 
         //Seguir la superficie
         Vector3 dir = Vector3.ProjectOnPlane(_slideDir, normal).normalized;
@@ -205,6 +248,7 @@ public class PenguinSlide : NetworkBehaviour
         _airHorizontal = Vector3.zero;
         _verticalSpeed = 0f;
         _groundTimer = 0f;
+        _jumpLock = 0f;
         SetSliding(false);
     }
 }
