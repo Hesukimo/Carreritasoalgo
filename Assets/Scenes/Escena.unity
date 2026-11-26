@@ -2789,9 +2789,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 46086e0b5fdb5c142bd6ee47f4e88ca7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIStartButtons
-  joinCodeInput: {fileID: 418269918}
-  joinCodeText: {fileID: 1211988134}
-  statusText: {fileID: 1795892210}
+  joinCodeInput: {fileID: 0}
+  joinCodeText: {fileID: 0}
+  statusText: {fileID: 0}
   menuPanel: {fileID: 0}
 --- !u!114 &1270652818
 MonoBehaviour:

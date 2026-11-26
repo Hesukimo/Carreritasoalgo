@@ -1,3 +1,4 @@
+
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Unity.Netcode;
@@ -7,33 +8,70 @@ public class LobbyManager : MonoBehaviour
 {
 	private const string GameSceneName = "Escena";
 
+	private bool startingGame = false;
+
 	void Update()
 	{
-		if (Keyboard.current.gKey.wasPressedThisFrame)
+		if (Keyboard.current != null &&
+			Keyboard.current.gKey.wasPressedThisFrame)
 		{
 			StartGame();
 		}
 	}
 
-	// Starts the main game but only works for the host
 	public void StartGame()
 	{
+		if (startingGame)
+			return;
 
-		if (!NetworkManager.Singleton.IsServer)
+		if (NetworkManager.Singleton == null)
 		{
-			Debug.LogWarning("Only the host/server can initiate the game.");
+			Debug.LogError("No existe NetworkManager.");
 			return;
 		}
 
-		// Syncronize all clients.
-		SceneEventProgressStatus status = NetworkManager.Singleton.SceneManager.LoadScene(
-			GameSceneName,
-			LoadSceneMode.Single
-		);
+		// Comprobar que la conexión está iniciada
+		if (!NetworkManager.Singleton.IsListening)
+		{
+			Debug.LogWarning("Primero debes iniciar el Host.");
+			return;
+		}
+
+		// Solo el Host puede comenzar
+		if (!NetworkManager.Singleton.IsServer)
+		{
+			Debug.LogWarning("Solo el Host puede iniciar la partida.");
+			return;
+		}
+
+		// Obtener jugadores conectados
+		int jugadores = NetworkManager.Singleton.ConnectedClientsList.Count;
+
+		// Necesitamos mínimo 2 jugadores
+		if (jugadores < 2)
+		{
+			Debug.LogWarning(
+				"Necesitas al menos 2 jugadores para comenzar. Actualmente: "
+				+ jugadores
+			);
+			return;
+		}
+
+		startingGame = true;
+
+		Debug.Log("Iniciando partida con " + jugadores + " jugadores.");
+
+		// Cargar Escena para todos
+		SceneEventProgressStatus status =
+			NetworkManager.Singleton.SceneManager.LoadScene(
+				GameSceneName,
+				LoadSceneMode.Single
+			);
 
 		if (status != SceneEventProgressStatus.Started)
 		{
-			Debug.LogError($"Error trying to load the scene: {status}");
+			startingGame = false;
+			Debug.LogError("Error al cargar Escena: " + status);
 		}
 	}
 }
